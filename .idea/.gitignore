@@ -1,0 +1,25 @@
+# 默认忽略的文件
+/shelf/
+/workspace.xml
+
+# DevEco Studio / IDE 目录
+.idea/
+.deveco/
+*.iml
+
+# 编译输出和缓存目录
+.hvigor/
+build/
+entry/build/
+*/build/
+*/.preview/
+
+# npm/ohpm 依赖目录
+node_modules/
+oh_modules/
+.npm/
+
+# 其他本地配置
+local.properties
+
+.hvigor/

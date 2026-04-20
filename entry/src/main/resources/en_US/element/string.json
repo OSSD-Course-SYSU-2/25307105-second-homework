@@ -1,0 +1,124 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "module description"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "CanvasComponent"
+    },
+    {
+      "name": "text_confirm",
+      "value": "Confirm"
+    },
+    {
+      "name": "text_chinese",
+      "value": "Chinese"
+    },
+    {
+      "name": "text_western",
+      "value": "Western"
+    },
+    {
+      "name": "text_japanese",
+      "value": "Japanese"
+    },
+    {
+      "name": "text_fast",
+      "value": "Fast Food"
+    },
+    {
+      "name": "text_vegetarian",
+      "value": "Vegetarian"
+    },
+    {
+      "name": "text_noodles",
+      "value": "Noodles"
+    },
+    {
+      "name": "prize_text_chinese",
+      "value": "Congratulations, you got Chinese food!"
+    },
+    {
+      "name": "prize_text_western",
+      "value": "Congratulations, you got Western food!"
+    },
+    {
+      "name": "prize_text_japanese",
+      "value": "Congratulations, you got Japanese food!"
+    },
+    {
+      "name": "prize_text_fast",
+      "value": "Congratulations, you got Fast Food!"
+    },
+    {
+      "name": "prize_text_vegetarian",
+      "value": "Congratulations, you got Vegetarian!"
+    },
+    {
+      "name": "prize_text_noodles",
+      "value": "Congratulations, you got Noodles!"
+    },
+    {
+      "name": "text_mode_money_much",
+      "value": "Money Much Mode"
+    },
+    {
+      "name": "text_mode_money_little",
+      "value": "Money Little Mode"
+    },
+    {
+      "name": "text_instant_noodles",
+      "value": "Instant Noodles"
+    },
+    {
+      "name": "text_bread",
+      "value": "Bread"
+    },
+    {
+      "name": "text_steamed_bun",
+      "value": "Steamed Bun"
+    },
+    {
+      "name": "text_rice",
+      "value": "Rice"
+    },
+    {
+      "name": "text_porridge",
+      "value": "Porridge"
+    },
+    {
+      "name": "text_biscuit",
+      "value": "Biscuit"
+    },
+    {
+      "name": "prize_text_instant_noodles",
+      "value": "Congratulations, you got Instant Noodles!"
+    },
+    {
+      "name": "prize_text_bread",
+      "value": "Congratulations, you got Bread!"
+    },
+    {
+      "name": "prize_text_steamed_bun",
+      "value": "Congratulations, you got Steamed Bun!"
+    },
+    {
+      "name": "prize_text_rice",
+      "value": "Congratulations, you got Rice!"
+    },
+    {
+      "name": "prize_text_porridge",
+      "value": "Congratulations, you got Porridge!"
+    },
+    {
+      "name": "prize_text_biscuit",
+      "value": "Congratulations, you got Biscuit!"
+    }
+  ]
+}

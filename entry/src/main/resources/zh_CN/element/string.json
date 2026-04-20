@@ -1,0 +1,124 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "模块描述"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "description"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "CanvasComponent"
+    },
+    {
+      "name": "text_confirm",
+      "value": "确定"
+    },
+    {
+      "name": "text_chinese",
+      "value": "中餐"
+    },
+    {
+      "name": "text_western",
+      "value": "西餐"
+    },
+    {
+      "name": "text_japanese",
+      "value": "日料"
+    },
+    {
+      "name": "text_fast",
+      "value": "快餐"
+    },
+    {
+      "name": "text_vegetarian",
+      "value": "素食"
+    },
+    {
+      "name": "text_noodles",
+      "value": "面食"
+    },
+    {
+      "name": "prize_text_chinese",
+      "value": "恭喜你，抽中了中餐！"
+    },
+    {
+      "name": "prize_text_western",
+      "value": "恭喜你，抽中了西餐！"
+    },
+    {
+      "name": "prize_text_japanese",
+      "value": "恭喜你，抽中了日料！"
+    },
+    {
+      "name": "prize_text_fast",
+      "value": "恭喜你，抽中了快餐！"
+    },
+    {
+      "name": "prize_text_vegetarian",
+      "value": "恭喜你，抽中了素食！"
+    },
+    {
+      "name": "prize_text_noodles",
+      "value": "恭喜你，抽中了面食！"
+    },
+    {
+      "name": "text_mode_money_much",
+      "value": "钱多模式"
+    },
+    {
+      "name": "text_mode_money_little",
+      "value": "钱少模式"
+    },
+    {
+      "name": "text_instant_noodles",
+      "value": "方便面"
+    },
+    {
+      "name": "text_bread",
+      "value": "面包"
+    },
+    {
+      "name": "text_steamed_bun",
+      "value": "馒头"
+    },
+    {
+      "name": "text_rice",
+      "value": "米饭"
+    },
+    {
+      "name": "text_porridge",
+      "value": "粥"
+    },
+    {
+      "name": "text_biscuit",
+      "value": "饼干"
+    },
+    {
+      "name": "prize_text_instant_noodles",
+      "value": "恭喜你，抽中了方便面！"
+    },
+    {
+      "name": "prize_text_bread",
+      "value": "恭喜你，抽中了面包！"
+    },
+    {
+      "name": "prize_text_steamed_bun",
+      "value": "恭喜你，抽中了馒头！"
+    },
+    {
+      "name": "prize_text_rice",
+      "value": "恭喜你，抽中了米饭！"
+    },
+    {
+      "name": "prize_text_porridge",
+      "value": "恭喜你，抽中了粥！"
+    },
+    {
+      "name": "prize_text_biscuit",
+      "value": "恭喜你，抽中了饼干！"
+    }
+  ]
+}
