@@ -1,31 +1,59 @@
-# Custom Prize Wheel
+# Lunch Picker
 
-### Introduction
+A HarmonyOS lunch decision app built with ArkTS and ArkUI. It helps users decide what to eat for lunch with candidate management, tag filtering, confirmation before saving, local persistence, simple statistics, and anti-indecision reroll limits.
 
-Learn how to customize a prize wheel based on the canvas component. Example:
+## Highlights
 
-<img src="./screenshots/device/canvas_en.gif" width="320">
+- Generate a recommendation first, then save it only after confirmation.
+- Reroll up to 3 times per round; the third reroll is automatically confirmed.
+- Filter candidates by tags such as rice, noodles, light food, takeout, or healthy.
+- Store candidates, tags, and history locally with HarmonyOS Preferences.
+- Keep the main screen focused by folding less frequent tools such as add, history, and management panels.
 
-### Concepts
+## Features
 
-- Stack: a component that allows child components to be successively stacked, with the latter one overwriting the previous one.
-- Canvas: a component that is used to customize drawings.
-- CanvasRenderingContext2D: a component that uses **RenderingContext** to draw rectangles, text, images, and other objects on a canvas.
-- Explicit animation (**animateTo**): a transition animation when the status changes due to the closure code.
-- Custom dialog box: a custom dialog box that is displayed by using the **CustomDialogController** class.
+- Add and delete lunch candidates.
+- Add multiple tags to each candidate.
+- Filter candidates by tag.
+- Confirm recommendations before they enter history.
+- Avoid recently confirmed meals and reduce the weight of frequently chosen meals.
+- View simple stats: total confirmations, most frequent meal, and longest unchosen meal.
+- Restore default candidates.
+- Clear current result or history.
 
-### Permissions
+## Tech Stack
 
-N/A
+- HarmonyOS
+- ArkTS
+- ArkUI
+- Stage model
+- Preferences local storage
 
-### How to Use
+## Main Files
 
-1. Tap the Start icon on the round wheel to start the lucky draw.
-2. After the prize wheel stops spinning, the lucky draw ends, with its text and images displayed.
+```text
+entry/src/main/ets/entryability/EntryAbility.ts
+entry/src/main/ets/pages/LunchPickerPage.ets
+entry/src/main/ets/viewmodel/LunchPickerViewModel.ets
+entry/src/main/ets/viewmodel/LunchHistoryItem.ets
+entry/src/main/ets/common/utils/LunchStorage.ets
+entry/src/main/resources/base/profile/main_pages.json
+```
 
-### Constraints
+## Requirements
 
-1. The sample is only supported on Huawei phones with standard systems.
-2. HarmonyOS: HarmonyOS 5.0.5 Release or later.
-3. DevEco Studio: DevEco Studio 6.0.2 Release or later.
-4. HarmonyOS SDK: HarmonyOS 6.0.2 Release SDK or later.
+- Device type: phone
+- HarmonyOS 5.0.5 Release or later
+- DevEco Studio 6.0.2 Release or later
+- HarmonyOS SDK 6.0.2 Release SDK or later
+
+## Run
+
+1. Open the `Lunch_chooser` project with DevEco Studio.
+2. Wait for project sync to complete.
+3. Select a HarmonyOS emulator or device.
+4. Run the `entry` module.
+
+## License
+
+Apache License 2.0. See [LICENSE](./LICENSE).

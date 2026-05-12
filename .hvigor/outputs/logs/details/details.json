@@ -20,10 +20,10 @@
     "IS_HVIGORFILE_TYPE_CHECK": false,
     "TASK_TIME": {
       "923fe53966c6cd9343e11af776cd4b05be315ea4b200b02e4d5dfb0f929b73bf": {
-        "clean": 144379000
+        "clean": 65317700
       },
       "APP": {
-        "clean": 666500
+        "clean": 511600
       }
     },
     "APIS": [],
@@ -32,7 +32,7 @@
       "ENABLE_CPP_FUNCTION_LEVEL_INCREMENTAL": false
     },
     "CONFIG_PROPERTIES": {},
-    "TOTAL_TIME": 404657400,
-    "BUILD_ID": "202604210007374680"
+    "TOTAL_TIME": 173982600,
+    "BUILD_ID": "202605121853438500"
   }
 }
