@@ -23,7 +23,8 @@ export default class LunchPickerViewModel {
       { id: 2, name: '兰州拉面', tags: ['面食', '汤类', '快餐'] },
       { id: 3, name: '牛肉饭', tags: ['米饭', '重口', '外卖'] },
       { id: 4, name: '轻食沙拉', tags: ['轻食', '清淡', '健康'] },
-      { id: 5, name: '馄饨', tags: ['汤类', '清淡', '快餐'] }
+      { id: 5, name: '馄饨', tags: ['汤类', '清淡', '快餐'] },
+      { id: 6, name: '麻辣烫', tags: ['重口', '外卖', '面食'] }
     ];
   }
 
@@ -37,7 +38,7 @@ export default class LunchPickerViewModel {
     }
 
     return rawTags
-      .split(/[，,、\s]+/)
+      .split(/[，、\s]+/)
       .map((tag: string) => tag.trim())
       .filter((tag: string) => tag.length > 0)
       .filter((tag: string, index: number, tags: string[]) => tags.indexOf(tag) === index);

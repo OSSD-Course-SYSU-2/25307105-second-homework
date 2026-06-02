@@ -23,6 +23,7 @@ struct LunchPickerPage {
   @State showManagePanel: boolean = false;
   @State historyItems: LunchHistoryItem[] = [];
   @State lunchOptions: LunchOption[] = LunchPickerViewModel.createDefaultOptions();
+  @State windowWidth: number = 360;
 
   aboutToAppear(): void {
     const hostContext: Context | undefined = this.getUIContext().getHostContext();
@@ -39,50 +40,90 @@ struct LunchPickerPage {
 
   build() {
     Scroll() {
-      Column({ space: 14 }) {
+      Column({ space: this.getOuterSpace() }) {
         this.buildHeader()
-        this.buildResultCard()
-        this.buildStatsStrip()
-        this.buildFilterCard()
-        this.buildOptionListCard()
-        this.buildToolsPanel()
+        if (this.isTwoColumnLayout()) {
+          Row({ space: 18 }) {
+            Column({ space: 14 }) {
+              this.buildResultCard()
+              this.buildStatsStrip()
+              this.buildFilterCard()
+            }
+            .layoutWeight(1)
+
+            Column({ space: 14 }) {
+              this.buildOptionListCard()
+              this.buildToolsPanel()
+            }
+            .layoutWeight(1)
+          }
+          .width('100%')
+          .alignItems(VerticalAlign.Top)
+        } else {
+          this.buildResultCard()
+          this.buildStatsStrip()
+          this.buildFilterCard()
+          this.buildOptionListCard()
+          this.buildToolsPanel()
+        }
       }
-      .width('100%')
-      .padding({ left: 18, right: 18, top: 24, bottom: 28 })
+      .width(this.getContentWidth())
+      .padding({
+        left: this.getPagePadding(),
+        right: this.getPagePadding(),
+        top: this.isCompactLayout() ? 22 : 32,
+        bottom: 30
+      })
+      .alignSelf(ItemAlign.Center)
     }
     .scrollBar(BarState.Off)
     .width('100%')
     .height('100%')
     .backgroundColor('#F6EFE6')
+    .onAreaChange((_oldValue, newValue) => {
+      this.windowWidth = this.toNumber(newValue.width.toString());
+    })
   }
 
   @Builder
   private buildHeader() {
-    Column({ space: 8 }) {
-      Text('Lunch Picker')
-        .fontSize(14)
-        .fontColor('#8C6A43')
-        .fontWeight(FontWeight.Medium)
+    Row() {
+      Column({ space: 8 }) {
+        Text('Lunch Picker')
+          .fontSize(14)
+          .fontColor('#8C6A43')
+          .fontWeight(FontWeight.Medium)
 
-      Text('午餐选择器')
-        .fontSize(30)
-        .fontWeight(FontWeight.Bold)
-        .fontColor('#2D1F12')
+        Text('午餐选择器')
+          .fontSize(this.isCompactLayout() ? 30 : 38)
+          .fontWeight(FontWeight.Bold)
+          .fontColor('#2D1F12')
 
-      Text('少纠结一会儿，多享受一顿饭。')
-        .fontSize(14)
-        .fontColor('#6F5A45')
-        .lineHeight(22)
+        Text(this.isTwoColumnLayout() ? '一套工程适配手机、平板和 2in1：窄屏专注选择，宽屏同时管理候选和历史。' : '少纠结一会儿，多享受一顿饭。')
+          .fontSize(14)
+          .fontColor('#6F5A45')
+          .lineHeight(22)
+          .maxLines(2)
+      }
+      .layoutWeight(1)
+      .alignItems(HorizontalAlign.Start)
+
+      Text(this.getDeviceLabel())
+        .fontSize(12)
+        .fontColor('#8F4A24')
+        .padding({ left: 12, right: 12, top: 7, bottom: 7 })
+        .backgroundColor('#F9DFC7')
+        .borderRadius(999)
     }
-    .alignItems(HorizontalAlign.Start)
     .width('100%')
+    .alignItems(VerticalAlign.Top)
   }
 
   @Builder
   private buildResultCard() {
     Column({ space: 14 }) {
       Row() {
-        Text('今天吃什么')
+        Text('今天吃什么？')
           .fontSize(16)
           .fontColor('#8C6A43')
 
@@ -98,7 +139,7 @@ struct LunchPickerPage {
       .justifyContent(FlexAlign.SpaceBetween)
 
       Text(this.resultText)
-        .fontSize(this.selectedOptionId >= 0 ? 28 : 24)
+        .fontSize(this.selectedOptionId >= 0 ? (this.isCompactLayout() ? 28 : 34) : 24)
         .fontWeight(FontWeight.Bold)
         .fontColor('#2D1F12')
         .textAlign(TextAlign.Center)
@@ -154,7 +195,7 @@ struct LunchPickerPage {
       }
     }
     .width('100%')
-    .padding(20)
+    .padding(this.getCardPadding())
     .borderRadius(16)
     .backgroundColor('#FFF9F2')
     .shadow({
@@ -199,17 +240,17 @@ struct LunchPickerPage {
   @Builder
   private buildToolsPanel() {
     Column({ space: 10 }) {
-      this.buildToolToggle('添加午餐', this.showInputPanel)
+      this.buildToolToggle('添加午餐', this.showInputPanel, 'input')
       if (this.showInputPanel) {
         this.buildInputCard()
       }
 
-      this.buildToolToggle(`最近结果 ${this.historyItems.length}`, this.showHistoryPanel)
+      this.buildToolToggle(`最近结果 ${this.historyItems.length}`, this.showHistoryPanel, 'history')
       if (this.showHistoryPanel) {
         this.buildHistoryCard()
       }
 
-      this.buildToolToggle('管理', this.showManagePanel)
+      this.buildToolToggle('管理', this.showManagePanel, 'manage')
       if (this.showManagePanel) {
         this.buildManageCard()
       }
@@ -218,7 +259,7 @@ struct LunchPickerPage {
   }
 
   @Builder
-  private buildToolToggle(label: string, isOpen: boolean) {
+  private buildToolToggle(label: string, isOpen: boolean, panel: string) {
     Row() {
       Text(label)
         .fontSize(15)
@@ -236,7 +277,7 @@ struct LunchPickerPage {
     .backgroundColor('#FFF9F2')
     .justifyContent(FlexAlign.SpaceBetween)
     .onClick(() => {
-      this.toggleToolPanel(label);
+      this.toggleToolPanel(panel);
     })
   }
 
@@ -270,7 +311,7 @@ struct LunchPickerPage {
         .fontColor('#7A6752')
     }
     .width('100%')
-    .padding(20)
+    .padding(this.getCardPadding())
     .borderRadius(16)
     .backgroundColor('#FFF9F2')
   }
@@ -324,21 +365,18 @@ struct LunchPickerPage {
       }
       .width('100%')
 
-      Row({ space: 10 }) {
-        Button('添加')
-          .layoutWeight(1)
-          .height(48)
-          .borderRadius(14)
-          .fontSize(15)
-          .fontWeight(FontWeight.Medium)
-          .backgroundColor(this.canAddCandidate() ? '#2F7D4A' : '#A9C8B4')
-          .fontColor('#FFFFFF')
-          .enabled(this.canAddCandidate())
-          .onClick(() => {
-            this.addLunchOption();
-          })
-      }
-      .width('100%')
+      Button('添加')
+        .width('100%')
+        .height(48)
+        .borderRadius(14)
+        .fontSize(15)
+        .fontWeight(FontWeight.Medium)
+        .backgroundColor(this.canAddCandidate() ? '#2F7D4A' : '#A9C8B4')
+        .fontColor('#FFFFFF')
+        .enabled(this.canAddCandidate())
+        .onClick(() => {
+          this.addLunchOption();
+        })
 
       Text(this.getInputHintText())
         .fontSize(12)
@@ -346,7 +384,7 @@ struct LunchPickerPage {
         .lineHeight(18)
     }
     .width('100%')
-    .padding(20)
+    .padding(this.getCardPadding())
     .borderRadius(16)
     .backgroundColor('#FFF9F2')
   }
@@ -427,7 +465,7 @@ struct LunchPickerPage {
       }, (option: LunchOption) => option.id.toString())
     }
     .width('100%')
-    .padding(20)
+    .padding(this.getCardPadding())
     .borderRadius(16)
     .backgroundColor('#FFF9F2')
   }
@@ -493,7 +531,7 @@ struct LunchPickerPage {
       }
     }
     .width('100%')
-    .padding(20)
+    .padding(this.getCardPadding())
     .borderRadius(16)
     .backgroundColor('#FFF9F2')
   }
@@ -506,35 +544,42 @@ struct LunchPickerPage {
         .fontWeight(FontWeight.Medium)
         .fontColor('#2D1F12')
 
-      Row({ space: 12 }) {
-        Button('恢复默认候选项')
-          .layoutWeight(1)
-          .height(44)
-          .borderRadius(14)
-          .backgroundColor('#EEE4D9')
-          .fontColor('#6F5A45')
-          .fontSize(14)
-          .onClick(() => {
-            this.resetOptions();
-          })
-
-        Button('清空当前结果')
-          .layoutWeight(1)
-          .height(44)
-          .borderRadius(14)
-          .backgroundColor('#F8DED2')
-          .fontColor('#B6481B')
-          .fontSize(14)
-          .onClick(() => {
-            this.resetResult();
-          })
+      if (this.isCompactLayout()) {
+        Column({ space: 10 }) {
+          this.buildManageButton('恢复默认候选项', 'restore')
+          this.buildManageButton('清空当前结果', 'reset')
+        }
+        .width('100%')
+      } else {
+        Row({ space: 12 }) {
+          this.buildManageButton('恢复默认候选项', 'restore')
+          this.buildManageButton('清空当前结果', 'reset')
+        }
+        .width('100%')
       }
-      .width('100%')
     }
     .width('100%')
-    .padding(20)
+    .padding(this.getCardPadding())
     .borderRadius(16)
     .backgroundColor('#FFF9F2')
+  }
+
+  @Builder
+  private buildManageButton(label: string, action: string) {
+    Button(label)
+      .layoutWeight(1)
+      .height(44)
+      .borderRadius(14)
+      .backgroundColor(action === 'restore' ? '#EEE4D9' : '#F8DED2')
+      .fontColor(action === 'restore' ? '#6F5A45' : '#B6481B')
+      .fontSize(14)
+      .onClick(() => {
+        if (action === 'restore') {
+          this.resetOptions();
+          return;
+        }
+        this.resetResult();
+      })
   }
 
   private getAvailableTags(): string[] {
@@ -582,12 +627,12 @@ struct LunchPickerPage {
     return LunchPickerViewModel.normalizeTags(this.candidateTagsText);
   }
 
-  private toggleToolPanel(label: string) {
-    if (label.startsWith('添加午餐')) {
+  private toggleToolPanel(panel: string) {
+    if (panel === 'input') {
       this.showInputPanel = !this.showInputPanel;
       return;
     }
-    if (label.startsWith('最近结果')) {
+    if (panel === 'history') {
       this.showHistoryPanel = !this.showHistoryPanel;
       return;
     }
@@ -610,7 +655,7 @@ struct LunchPickerPage {
     }
 
     if (LunchPickerViewModel.containsOption(this.lunchOptions, normalizedName)) {
-      return '这个名称已经在候选列表中了';
+      return '这个名称已经在候选列表中';
     }
 
     if (tags.length === 0) {
@@ -769,5 +814,59 @@ struct LunchPickerPage {
     const hour: string = `${now.getHours()}`.padStart(2, '0');
     const minute: string = `${now.getMinutes()}`.padStart(2, '0');
     return `${month}-${day} ${hour}:${minute}`;
+  }
+
+  private isCompactLayout(): boolean {
+    return this.windowWidth < 600;
+  }
+
+  private isTwoColumnLayout(): boolean {
+    return this.windowWidth >= 720;
+  }
+
+  private getDeviceLabel(): string {
+    if (this.windowWidth >= 960) {
+      return '2in1 / 桌面';
+    }
+    if (this.windowWidth >= 720) {
+      return '平板双栏';
+    }
+    return '手机单栏';
+  }
+
+  private getContentWidth(): string {
+    if (this.windowWidth >= 1080) {
+      return '1040vp';
+    }
+    return '100%';
+  }
+
+  private getPagePadding(): number {
+    if (this.windowWidth >= 720) {
+      return 28;
+    }
+    return 18;
+  }
+
+  private getCardPadding(): number {
+    if (this.windowWidth >= 720) {
+      return 22;
+    }
+    return 20;
+  }
+
+  private getOuterSpace(): number {
+    if (this.windowWidth >= 720) {
+      return 18;
+    }
+    return 14;
+  }
+
+  private toNumber(value: string): number {
+    const parsedValue: number = Number.parseFloat(value);
+    if (Number.isNaN(parsedValue)) {
+      return 360;
+    }
+    return parsedValue;
   }
 }
