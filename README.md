@@ -185,7 +185,8 @@ Lunch_chooser
 │       │   │   └── LunchPickerPage.ets
 │       │   ├── viewmodel
 │       │   │   ├── LunchPickerViewModel.ets
-│       │   │   └── LunchHistoryItem.ets
+│       │   │   ├── LunchHistoryItem.ets
+│       │   │   └── LunchContinuationState.ts
 │       │   └── common/utils
 │       │       └── LunchStorage.ets
 │       └── resources
@@ -200,6 +201,7 @@ Lunch_chooser
 - `LunchPickerPage.ets`：主页面 UI 和交互逻辑。
 - `LunchPickerViewModel.ets`：候选项模型、标签处理、筛选、随机策略和统计逻辑。
 - `LunchHistoryItem.ets`：历史记录数据结构。
+- `LunchContinuationState.ts`：自由流转接续状态模型、裁剪和校验逻辑。
 - `LunchStorage.ets`：Preferences 本地持久化封装。
 - `main_pages.json`：页面注册，目前只注册午餐选择器主页面。
 
@@ -239,8 +241,16 @@ Will skip sign 'hos_hap'. No signingConfigs profile is configured...
 - Preferences 本地持久化
 - phone / tablet / 2in1 多端部署配置
 - 手机单栏、平板和 2in1 双栏自适应布局
+- HarmonyOS 自由流转 / 应用接续状态传递
 - 首页视觉精简
 - 旧转盘示例功能清理
+
+最近一次本地验证：
+
+- `hvigorw.bat assembleHap --mode module -p module=entry@default -p product=default` 构建通过。
+- HAP 已在当前模拟器安装并启动成功。
+- `uitest dumpLayout` 能看到 `Lunch Picker`、`午餐选择器`、`今天吃什么？`、`帮我决定` 等主界面节点。
+- 当前本机只检测到一个 `hdc` 目标 `127.0.0.1:5555`，因此真实设备 A 到设备 B 的自由流转仍需在双设备或双模拟器环境中按上文步骤手动验证。
 
 
 ## License
