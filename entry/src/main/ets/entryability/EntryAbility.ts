@@ -14,13 +14,21 @@
  */
 
 
-import { UIAbility } from '@kit.AbilityKit';
+import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { window } from '@kit.ArkUI';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import LunchContinuationStateModel, {
+  LUNCH_CONTINUATION_RESTORE_PENDING_KEY,
+  LUNCH_CONTINUATION_STATE_KEY,
+  LunchContinuationState
+} from '../viewmodel/LunchContinuationState';
 
 export default class EntryAbility extends UIAbility {
-  onCreate(want, launchParam) {
+  private pendingContinuationState?: LunchContinuationState;
+
+  onCreate(want: Want, launchParam: AbilityConstant.LaunchParam) {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');
+    this.restoreContinuationState(want);
   }
 
   onDestroy() {
@@ -38,6 +46,7 @@ export default class EntryAbility extends UIAbility {
       }
       hilog.info(0x0000, 'testTag', 'Succeeded in loading the content. Data: %{public}s', JSON.stringify(data) ?? '');
       AppStorage.setOrCreate('uiContext', windowStage.getMainWindowSync().getUIContext());
+      this.syncPendingContinuationState();
     });
   }
 
@@ -54,5 +63,40 @@ export default class EntryAbility extends UIAbility {
   onBackground() {
     // Ability has back to background
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onBackground');
+  }
+
+  onNewWant(want: Want, launchParam: AbilityConstant.LaunchParam) {
+    hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onNewWant');
+    this.restoreContinuationState(want);
+  }
+
+  onContinue(wantParam: Record<string, Object>): AbilityConstant.OnContinueResult {
+    const currentState: LunchContinuationState | undefined =
+      LunchContinuationStateModel.validate(AppStorage.get(LUNCH_CONTINUATION_STATE_KEY) as Object | undefined);
+    if (currentState === undefined) {
+      return AbilityConstant.OnContinueResult.REJECT;
+    }
+
+    // Keep continuation payload compact and validated before handing it to the system.
+    wantParam[LUNCH_CONTINUATION_STATE_KEY] = currentState as Object;
+    return AbilityConstant.OnContinueResult.AGREE;
+  }
+
+  private restoreContinuationState(want: Want) {
+    const rawState: Object | undefined = want.parameters?.[LUNCH_CONTINUATION_STATE_KEY];
+    const continuationState: LunchContinuationState | undefined = LunchContinuationStateModel.validate(rawState);
+    if (continuationState === undefined) {
+      return;
+    }
+    this.pendingContinuationState = continuationState;
+    this.syncPendingContinuationState();
+  }
+
+  private syncPendingContinuationState() {
+    if (this.pendingContinuationState === undefined) {
+      return;
+    }
+    AppStorage.setOrCreate(LUNCH_CONTINUATION_RESTORE_PENDING_KEY, true);
+    AppStorage.setOrCreate(LUNCH_CONTINUATION_STATE_KEY, this.pendingContinuationState);
   }
 }

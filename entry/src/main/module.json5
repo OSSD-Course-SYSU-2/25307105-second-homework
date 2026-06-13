@@ -21,6 +21,7 @@
         "label": "$string:EntryAbility_label",
         "startWindowIcon": "$media:icon",
         "startWindowBackground": "$color:start_window_background",
+        "continuable": true,
         "exported": true,
         "skills": [
           {

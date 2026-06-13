@@ -1,5 +1,12 @@
 import { Context } from '@kit.AbilityKit';
 import LunchStorage from '../common/utils/LunchStorage';
+import LunchContinuationStateModel, {
+  LUNCH_CONTINUATION_RESTORE_PENDING_KEY,
+  LUNCH_CONTINUATION_STATE_KEY,
+  LunchContinuationHistoryItem,
+  LunchContinuationOption,
+  LunchContinuationState
+} from '../viewmodel/LunchContinuationState';
 import LunchHistoryItem from '../viewmodel/LunchHistoryItem';
 import LunchPickerViewModel, { LunchOption } from '../viewmodel/LunchPickerViewModel';
 
@@ -24,6 +31,10 @@ struct LunchPickerPage {
   @State historyItems: LunchHistoryItem[] = [];
   @State lunchOptions: LunchOption[] = LunchPickerViewModel.createDefaultOptions();
   @State windowWidth: number = 360;
+  @StorageLink(LUNCH_CONTINUATION_STATE_KEY) @Watch('onContinuationStateChanged')
+  continuationState: LunchContinuationState | undefined = undefined;
+  @StorageLink(LUNCH_CONTINUATION_RESTORE_PENDING_KEY)
+  hasPendingContinuationRestore: boolean = false;
 
   aboutToAppear(): void {
     const hostContext: Context | undefined = this.getUIContext().getHostContext();
@@ -36,6 +47,8 @@ struct LunchPickerPage {
 
     this.historyItems = LunchStorage.loadHistory();
     this.nextOptionId = LunchPickerViewModel.getNextOptionId(this.lunchOptions);
+    this.applyPendingContinuationState();
+    this.publishContinuationState();
   }
 
   build() {
@@ -326,7 +339,7 @@ struct LunchPickerPage {
       .borderRadius(999)
       .margin({ right: 8, bottom: 8 })
       .onClick(() => {
-        this.activeTag = label === '全部' ? '' : label;
+        this.setActiveTag(label === '全部' ? '' : label);
       })
   }
 
@@ -346,6 +359,7 @@ struct LunchPickerPage {
         .padding({ left: 14, right: 14 })
         .onChange((value: string) => {
           this.candidateName = value;
+          this.publishContinuationState();
         })
 
       TextInput({ placeholder: '标签：米饭 重口 外卖', text: this.candidateTagsText })
@@ -356,6 +370,7 @@ struct LunchPickerPage {
         .padding({ left: 14, right: 14 })
         .onChange((value: string) => {
           this.candidateTagsText = value;
+          this.publishContinuationState();
         })
 
       Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.Start, alignItems: ItemAlign.Start }) {
@@ -627,16 +642,104 @@ struct LunchPickerPage {
     return LunchPickerViewModel.normalizeTags(this.candidateTagsText);
   }
 
+  private setActiveTag(activeTag: string) {
+    this.activeTag = activeTag;
+    if (this.selectedOptionId >= 0) {
+      const selectedOption: LunchOption | undefined = this.lunchOptions.find((option: LunchOption) => {
+        return option.id === this.selectedOptionId;
+      });
+      const selectedStillVisible: boolean = selectedOption !== undefined &&
+        LunchPickerViewModel.getFilteredOptions([selectedOption], this.activeTag).length > 0;
+      if (!selectedStillVisible) {
+        this.resetResult();
+        this.helperText = '当前推荐不在新的筛选结果中，请重新随机选择';
+        this.resultTagText = '结果已重置';
+      }
+    }
+    this.publishContinuationState();
+  }
+
+  private applyPendingContinuationState() {
+    if (!this.hasPendingContinuationRestore) {
+      return;
+    }
+
+    const continuationState: LunchContinuationState | undefined =
+      LunchContinuationStateModel.validate(AppStorage.get(LUNCH_CONTINUATION_STATE_KEY) as Object | undefined);
+    if (continuationState === undefined) {
+      AppStorage.setOrCreate(LUNCH_CONTINUATION_RESTORE_PENDING_KEY, false);
+      return;
+    }
+
+    this.activeTag = continuationState.activeTag;
+    this.candidateName = continuationState.candidateName;
+    this.candidateTagsText = continuationState.candidateTagsText;
+    this.lunchOptions = continuationState.lunchOptions.map((option: LunchContinuationOption) => {
+      const lunchOption: LunchOption = {
+        id: option.id,
+        name: option.name,
+        tags: option.tags
+      };
+      return lunchOption;
+    });
+    this.historyItems = continuationState.historyItems.map((item: LunchContinuationHistoryItem) => {
+      const historyItem: LunchHistoryItem = {
+        id: item.id,
+        name: item.name,
+        pickedAt: item.pickedAt
+      };
+      return historyItem;
+    });
+    this.selectedOptionId = continuationState.selectedOptionId;
+    this.resultText = continuationState.resultText.length > 0 ? continuationState.resultText : LunchPickerViewModel.PICK_PROMPT;
+    this.helperText = continuationState.helperText.length > 0 ? continuationState.helperText : LunchPickerViewModel.READY_MESSAGE;
+    this.resultTagText = continuationState.resultTagText.length > 0 ? continuationState.resultTagText : '准备就绪';
+    this.hasPendingResult = continuationState.hasPendingResult;
+    this.rerollCount = continuationState.rerollCount;
+    this.showInputPanel = continuationState.showInputPanel;
+    this.showHistoryPanel = continuationState.showHistoryPanel;
+    this.showManagePanel = continuationState.showManagePanel;
+    this.nextOptionId = LunchPickerViewModel.getNextOptionId(this.lunchOptions);
+    AppStorage.setOrCreate(LUNCH_CONTINUATION_RESTORE_PENDING_KEY, false);
+  }
+
+  private onContinuationStateChanged() {
+    this.applyPendingContinuationState();
+  }
+
+  private publishContinuationState() {
+    const continuationState: LunchContinuationState = LunchContinuationStateModel.createState(
+      this.activeTag,
+      this.candidateName,
+      this.candidateTagsText,
+      this.selectedOptionId,
+      this.resultText,
+      this.helperText,
+      this.resultTagText,
+      this.hasPendingResult,
+      this.rerollCount,
+      this.showInputPanel,
+      this.showHistoryPanel,
+      this.showManagePanel,
+      this.lunchOptions,
+      this.historyItems
+    );
+    AppStorage.setOrCreate(LUNCH_CONTINUATION_STATE_KEY, continuationState);
+  }
+
   private toggleToolPanel(panel: string) {
     if (panel === 'input') {
       this.showInputPanel = !this.showInputPanel;
+      this.publishContinuationState();
       return;
     }
     if (panel === 'history') {
       this.showHistoryPanel = !this.showHistoryPanel;
+      this.publishContinuationState();
       return;
     }
     this.showManagePanel = !this.showManagePanel;
+    this.publishContinuationState();
   }
 
   private toggleCandidateTag(tag: string) {
@@ -645,6 +748,7 @@ struct LunchPickerPage {
       ? currentTags.filter((currentTag: string) => currentTag !== tag)
       : [...currentTags, tag];
     this.candidateTagsText = nextTags.join(' ');
+    this.publishContinuationState();
   }
 
   private getInputHintText(): string {
@@ -670,12 +774,14 @@ struct LunchPickerPage {
     if (normalizedName.length === 0) {
       this.helperText = LunchPickerViewModel.EMPTY_NAME_MESSAGE;
       this.resultTagText = '输入为空';
+      this.publishContinuationState();
       return;
     }
 
     if (LunchPickerViewModel.containsOption(this.lunchOptions, normalizedName)) {
       this.helperText = LunchPickerViewModel.DUPLICATE_NAME_MESSAGE;
       this.resultTagText = '重复项';
+      this.publishContinuationState();
       return;
     }
 
@@ -690,12 +796,14 @@ struct LunchPickerPage {
     this.helperText = `已添加“${normalizedName}”，当前共 ${this.lunchOptions.length} 项`;
     this.resultTagText = tags.length > 0 ? `标签 ${tags.length}` : '列表已更新';
     LunchStorage.saveOptions(this.lunchOptions);
+    this.publishContinuationState();
   }
 
   private removeLunchOption(optionId: number) {
     if (this.lunchOptions.length <= 1) {
       this.helperText = LunchPickerViewModel.RESERVED_ONE_MESSAGE;
       this.resultTagText = '无法删除';
+      this.publishContinuationState();
       return;
     }
 
@@ -709,6 +817,7 @@ struct LunchPickerPage {
       this.helperText = '已删除当前展示结果，请重新随机选择';
       this.resultTagText = '结果已重置';
     }
+    this.publishContinuationState();
   }
 
   private pickLunch() {
@@ -720,6 +829,7 @@ struct LunchPickerPage {
       this.resultText = LunchPickerViewModel.PICK_EMPTY_MESSAGE;
       this.helperText = this.activeTag.length > 0 ? '当前筛选条件下没有可选项' : LunchPickerViewModel.PICK_EMPTY_HELPER_MESSAGE;
       this.resultTagText = '无法选择';
+      this.publishContinuationState();
       return;
     }
 
@@ -735,10 +845,12 @@ struct LunchPickerPage {
       this.helperText = `已经换了 ${LunchPickerPage.MAX_REROLL_COUNT} 次，已帮你确定“${selectedOption.name}”`;
       this.resultTagText = '已确认';
       this.appendHistory(selectedOption.name);
+      this.publishContinuationState();
       return;
     }
 
     this.helperText = this.getPendingResultHelperText(selectableOptions.length);
+    this.publishContinuationState();
   }
 
   private confirmLunch() {
@@ -749,6 +861,7 @@ struct LunchPickerPage {
       this.resetResult();
       this.helperText = '当前推荐已不在候选列表中，请重新随机选择';
       this.resultTagText = '结果已重置';
+      this.publishContinuationState();
       return;
     }
 
@@ -758,6 +871,7 @@ struct LunchPickerPage {
     this.helperText = `已确认“${selectedOption.name}”，结果已写入历史记录`;
     this.resultTagText = '已确认';
     this.appendHistory(selectedOption.name);
+    this.publishContinuationState();
   }
 
   private appendHistory(lunchName: string) {
@@ -769,6 +883,7 @@ struct LunchPickerPage {
 
     this.historyItems = [historyItem, ...this.historyItems].slice(0, LunchPickerViewModel.MAX_HISTORY_COUNT);
     LunchStorage.saveHistory(this.historyItems);
+    this.publishContinuationState();
   }
 
   private clearHistory() {
@@ -776,6 +891,7 @@ struct LunchPickerPage {
     LunchStorage.clearHistory();
     this.helperText = '历史记录已清空';
     this.resultTagText = '历史已清空';
+    this.publishContinuationState();
   }
 
   private resetOptions() {
@@ -785,6 +901,7 @@ struct LunchPickerPage {
     this.resetResult();
     this.helperText = '已恢复默认候选项';
     this.resultTagText = '已恢复默认';
+    this.publishContinuationState();
   }
 
   private resetResult() {
@@ -794,6 +911,7 @@ struct LunchPickerPage {
     this.resultText = LunchPickerViewModel.PICK_PROMPT;
     this.helperText = LunchPickerViewModel.READY_MESSAGE;
     this.resultTagText = '准备就绪';
+    this.publishContinuationState();
   }
 
   private canReroll(): boolean {
